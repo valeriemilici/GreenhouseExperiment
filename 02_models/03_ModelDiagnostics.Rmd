@@ -1,0 +1,30 @@
+---
+title: "Model Diagnostics"
+author: "Valerie Milici"
+date: "8/31/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Packages}
+library(sjPlot)
+```
+
+
+# Height Models
+
+## Total Height
+```{r residuals}
+htresid <- resid(height.mod)
+plot(perf_dat$duration, htresid) #residuals against a predictor
+
+plot(height.mod) #model residuals
+
+plot_grid(plot_model(height.mod, type = "diag"))
+
+```
+There are no patterns in the residuals. Good. 
+

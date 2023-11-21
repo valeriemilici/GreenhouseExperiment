@@ -8,3 +8,5 @@
 *.RDS
 *.pdf
 *.png
+BootOutput/
+*.boot

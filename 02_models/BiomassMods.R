@@ -19,17 +19,15 @@ library(glmmTMB)
 
 dat <- read.csv("Data/mod_data_allpots.csv")
 
-perf_dat <- dat %>% filter(status == 1)
+perf_dat <- dat %>% filter(status == 1) #living plants only
 
 #error on line 114- all Guapst Controls were harvested on day 212
 perf_dat[114,24] <- 212
 
-### Above vs. Belowground Allocation -------------------------------------------
-
 ## All treatments
 perf_dat$soil <- factor(perf_dat$soil,
-                        levels = c("conspecific","control", "heterospecific"))
-#contrasts(perf_dat$soil ) <- contr.sum(3)
+                        levels = c("control", "conspecific", "heterospecific"))
+### Above vs. Belowground Allocation -------------------------------------------
 
 bioratio.mod <- lmer(log(Root_Mass/Stem_Mass) ~ Treatment*soil + duration +
                                  log(Init_Height) + log(Tot_Biomass) +
@@ -68,52 +66,3 @@ summary(bm.mod)
 #In the wet treatment, seedlings in heterospecific soil grew larger than seedlings
 #in conspecific soil. 
 saveRDS(bm.mod, file = "02_models/modoutput/biomass.RDS")
-
-### Belowground Biomass Allocation ---------------------------------------------
-Root.mod<- lmer(log(Root_Mass) ~ log(Tot_Biomass) +
-                   soil*Treatment + duration +
-                   (1|Seedling) + (1|Inoc_Sp) + (1|Table) + (1|begin),
-                 data = perf_dat)
-check_model(Root.mod)
-anova(Root.mod)
-summary(Root.mod) #roots are different is sterile soil compared to live soil. 
-#in the dry treatment, the roots are a bit smaller, and in the wet treatment the
-#roots are a bit larger.
-
-### Aboveground Biomass --------------------------------------------------------
-perf_dat1 <- perf_dat %>% group_by(Seedling) %>%
-  mutate(Stem_s = scale(Stem_Mass),
-         Root_s = scale(Root_Mass),
-         Tot_s = scale(Tot_Biomass)) %>%
-  ungroup()
-
-Stem.mod<- lmer(Stem_s[1,] ~ Tot_s[1,] +
-                   soil*Treatment + duration +
-                   (1|Seedling) + (1|Inoc_Sp) + (1|Table) + (1|begin),
-                 data = perf_dat1)
-check_model(Stem.mod)
-anova(Stem.mod)
-summary(Stem.mod) #in the wet treatment plants in the control soils have slightly
-#smaller shoots compared to other treatments. They also have slightly longer roots
-# in the wet treatment, so although the control treatment doesn't have an absolute
-# difference in biomass between the two live treatments, it is allocating that
-# biomass differently. 
-
-stem_pred<- as.data.frame(ggemmeans(Stem.mod, c("Treatment", "soil")))
-
-plot(ggpredict(Stem.mod, c("Treatment", "soil")))
-
-ggplot(Stem_pred) + 
-  geom_pointrange(aes(x = x, y = predicted, ymin = conf.low,
-                      ymax = conf.high, color = group),
-                  position = position_dodge(width = 0.5))+
-  theme_bw(16)
-
-
-
-Stem.mod1<- glmmTMB(Stem_Mass/Tot_Biomass ~  soil*Treatment + duration +
-                  (1|Seedling) + (1|Inoc_Sp) + (1|Table) + (1|begin),
-                data = perf_dat,
-                family = beta_family())
-summary(Stem.mod1)
-

@@ -1,5 +1,12 @@
 ### Change in Height Models ###
 
+## Notes- although there are some intriguing patterns between the height and 
+## root models, the patterns aren't consistent or strong enough to add clarity
+## to the story. They show some differences that indicate that conspecific 
+## microbes may have a negative effect on plant growth relative to control and
+## heterospecific plants, and although that is promising, I think it would not
+## add enough to the story. 
+
 ### Initialize Workspace -------------------------------------------------------
 
 rm(list = ls())
@@ -41,7 +48,6 @@ perf_dat2 <- mutate(perf_dat2, t_S0 = duration.mo * log(Init_Height_mm))
 
 ### Change in Height -----------------------------------------------------------
 height.mod <- lmer(log(Final_Height_mm) ~ 0 + t_S0 + duration.mo +
-                     as.factor(Cohort) +
                       W + het + con + Whet  + Wcon +
                       (0 + duration.mo | Seedling) + 
                       (0 + duration.mo | Inoc_Sp) + 
@@ -55,23 +61,32 @@ plot_model(height.mod, rm.terms = c("log(Init_Height_mm)")) + coord_flip(ylim = 
 check_model(height.mod) #looks good
 saveRDS(height.mod, "modoutput/htmod.RDS") 
 
+mod1 <- lmer(log(Final_Height) ~ log(Init_Height) + soil*Treatment +
+               as.factor(Cohort) + 
+               (1|Seedling) + (1|Inoc_Sp) + (1|Table) + (1|begin),
+             data = perf_dat)
+
+anova(mod1)
+check_model(mod1)
+#looks pretty good
+#note- cohort is better than duration (dAIC = 11)
+summary(mod1)
+
 ### Root Length ----------------------------------------------------------------
 
 #Root Length
-Root.mod1<- lmer(scale(Root_LG) ~ log_Init_Height_mm + 
+Root.mod1<- lmer(scale(Root_LG) ~ 0 + scale(Init_Height) + 
                    soil*Treatment + as.factor(Cohort) +
-                   (1|Seedling) + (1|Inoc_Sp) + (1|Table),
-                 data = perf_dat3)
+                   (1|Seedling) + (1|Inoc_Sp) + (1|Table) + (1|begin),
+                 data = perf_dat)
 check_model(Root.mod1)
 summary(Root.mod1) #absolutely no effect
+anova(Root.mod1)
+Root.mod2<- lmer(scale(Root_LG) ~ scale(Init_Height) + 
+                   soil*Treatment + duration +
+                   (1|Seedling) + (1|Inoc_Sp) + (1|Table) + (1|begin),
+                 data = perf_dat)
+check_model(Root.mod1)
+summary(Root.mod2)
 
-#Dead vs Live soil?
-
-Root.mod3<- lmer(scale(Root_LG) ~ log_Init_Height_mm + 
-                   wanted*Treatment + as.factor(Cohort) +
-                   (1|Seedling) + (1|Inoc_Sp) + (1|Table),
-                 data = perf_dat3)
-check_model(Root.mod3)
-summary(Root.mod3) #absolutely no effect
-
-
+AIC(Root.mod1, Root.mod2)

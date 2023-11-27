@@ -47,7 +47,13 @@ cohort <- select(dat, c("Location", "Cohort"))
 
 dat.s <- left_join(dat.s, cohort, by = "Location")
 
+#Add live vs. sterile soil column
+dat <- dat %>% mutate(microbes = if_else(soil == "control", "sterile", "live"))
+
 ### Times Series Survival Model ------------------------------------------------
+
+#We don't report the time series data,
+#so consider removing this code from the script
 surv.ts <- glmer(status ~ soil*Treatment + log_htprevcensus_s + log(Duration) +
                     (1|Seedling)+ (1|Inoc_Sp) + (1|Location) + (1|Begin),
                   data = subset(dat.s, htprevcensus != 999 &
@@ -77,6 +83,8 @@ plotResiduals(modelOutput, testdat$soil)
 plot(allEffects(surv.ts))
 
 ### Basic Survival Model -------------------------------------------------------
+dat$soil <- factor(dat$soil, levels =c("control", "conspecific", "heterospecific"))
+
 surv <- glmer(status ~ soil*Treatment + scale(Init_Height) + as.factor(Cohort) +
                  (1|Seedling)+ (1|Inoc_Sp) + (1|Table) + (1|begin),
                family = binomial(link = "logit"),
@@ -90,6 +98,3 @@ plot(survOutput) #looks way better with these changes. Cohort is a much better
 summary(surv)
 
 plotResiduals(survOutput, dat$soil)
-
-plot(allEffects(surv.ts))
-summary(surv2)

@@ -26,7 +26,7 @@ perf_dat[114,24] <- 212
 
 ## All treatments
 perf_dat$soil <- factor(perf_dat$soil,
-                        levels = c("control", "conspecific", "heterospecific"))
+                        levels = c( "conspecific", "heterospecific","control"))
 ### Above vs. Belowground Allocation -------------------------------------------
 
 bioratio.mod <- lmer(log(Root_Mass/Stem_Mass) ~ Treatment*soil + duration +
@@ -55,13 +55,18 @@ ggplot(rat_pred) +
   theme_bw(16)
 
 ### Total Biomass --------------------------------------------------------------
-bm.mod <- lmerTest::lmer(log(Tot_Biomass) ~ Treatment*soil + duration +
-                                 scale(Init_Height) +
+bm.mod0 <- lmerTest::lmer(log(Tot_Biomass) ~ Treatment*soil + duration +
+                                 scale(log(Init_Height)) +
                                  (1|Seedling) + (1|Inoc_Sp) + (1|Table) + (1|begin), 
                                data = perf_dat)
 
+bm.mod <- lmerTest::lmer(log(Tot_Biomass) ~ Treatment*soil + duration +
+                           scale(Init_Height) +
+                           (1|Seedling) + (1|Inoc_Sp) + (1|Table) + (1|begin), 
+                         data = perf_dat)
+
 check_model(bm.mod) 
-Anova(bm.mod) 
+anova(bm.mod0, bm.mod) 
 summary(bm.mod)
 #In the wet treatment, seedlings in heterospecific soil grew larger than seedlings
 #in conspecific soil. 

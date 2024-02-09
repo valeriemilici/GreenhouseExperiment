@@ -41,12 +41,29 @@ dat2 <- dat %>%
 dat2$soil <- factor(dat2$soil,
                         levels = c(  "heterospecific", "conspecific","control"))
 
-mod1 <- glmmTMB(log1p(Tot_Biomass) ~ scale(log1p(Init_Height)) +
-                  Treatment*soil + as.factor(Cohort) +
-  (1|Seedling) + (1|Inoc_Sp) + (1|Table) + (1|begin),
-ziformula = ~ scale(log1p(Init_Height)) + Treatment*soil + as.factor(Cohort),
-data = dat2)
 
-summary(mod1)
+# mod1 <- glmmTMB(log1p(Tot_Biomass) ~ scale(log1p(Init_Height)) +
+#                   Treatment*soil + as.factor(Cohort) +
+#   (1|Seedling) + (1|Inoc_Sp) + (1|Table) + (1|begin),
+# ziformula = ~ scale(log1p(Init_Height)) + Treatment*soil + as.factor(Cohort),
+# data = dat2)
+
+
+# 
+# mod1_a <- glmmTMB(Tot_Biomass ~ scale(log1p(Init_Height)) + ## ok, problem is the log - switch to Gamma?
+#                     Treatment*soil + as.factor(Cohort) +
+#                     (1|Seedling) + (1|Inoc_Sp) + (1|Table) + (1|begin),
+#                   ziformula = ~ scale(log1p(Init_Height)) + 
+#                     Treatment*soil + as.factor(Cohort),
+#                   data = dat2, family = lognormal(link = "log")) ## doesn't work
+summary(dat2$Tot_Biomass)
+mod1_b <- glmmTMB(Tot_Biomass ~ scale(log1p(Init_Height)) + ## ok, problem is the log - switch to Gamma?
+                    Treatment*soil + as.factor(Cohort) +
+                    (1|Seedling) + (1|Inoc_Sp) + (1|Table) + (1|begin),
+                  ziformula = ~ scale(log1p(Init_Height)) + 
+                    Treatment*soil + as.factor(Cohort),
+                  data = dat2, family = ziGamma(link = "log"))
+
+summary(mod1_b)
 
 

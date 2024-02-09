@@ -17,7 +17,6 @@ load("03_Bootstrapping/BootOutput/bm.boot")
 load("03_Bootstrapping/BootOutput/bm.PSF")
 load("03_Bootstrapping/BootOutput/bmratio.boot")
 
-
 ### Biomass Model Output -------------------------------------------------------
 
 #Remove intercept variation
@@ -140,3 +139,17 @@ fig3
 
 ggsave(plot = fig3, filename = "04_figures/figures/bmRatio.pdf",
        height = 3, width = 6, units = "in")
+
+
+
+### Species-Specific effects on conspecific density
+con_re <- data.frame(ranef(bm.mod)) #extract random effects from model
+
+con.sp_re <-filter(con_re, grpvar == "Seedling") 
+con.sp_re <- con.sp_re[-(1:2)] #remove unneccesary columns
+
+con.sp_re <- con.sp_re %>% mutate( lwr = condval - condsd) %>%
+  mutate(upr = condval + condsd)%>%
+  dplyr::rename(Sp = grp) #add columns for upper and lower CI values
+
+

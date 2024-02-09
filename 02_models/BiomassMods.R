@@ -26,7 +26,7 @@ perf_dat[114,24] <- 212
 
 ## All treatments
 perf_dat$soil <- factor(perf_dat$soil,
-                        levels = c( "conspecific", "heterospecific","control"))
+                        levels = c(  "heterospecific", "conspecific","control"))
 ### Above vs. Belowground Allocation -------------------------------------------
 
 bioratio.mod <- lmer(log(Root_Mass/Stem_Mass) ~ Treatment*soil + duration +
@@ -43,17 +43,6 @@ Anova(bioratio.mod)
 
 saveRDS(bioratio.mod, file = "02_models/modoutput/bmratio.RDS")
 
-#quick prediction plotting
-rat_pred<- as.data.frame(ggemmeans(bioratio.mod, c("Treatment", "soil")))
-
-plot(ggpredict(bioratio.mod, c("Treatment", "soil")))
-
-ggplot(rat_pred) + 
-  geom_pointrange(aes(x = x, y = predicted, ymin = conf.low,
-                      ymax = conf.high, color = group),
-                  position = position_dodge(width = 0.5))+
-  theme_bw(16)
-
 ### Total Biomass --------------------------------------------------------------
 bm.mod0 <- lmerTest::lmer(log(Tot_Biomass) ~ Treatment*soil + duration +
                                  scale(log(Init_Height)) +
@@ -66,8 +55,17 @@ bm.mod <- lmerTest::lmer(log(Tot_Biomass) ~ Treatment*soil + duration +
                          data = perf_dat)
 
 check_model(bm.mod) 
-anova(bm.mod0, bm.mod) 
+anova(bm.mod0, bm.mod) #much better if initial height is not logged. dAIC = 28
+compare_performance(bm.mod, bm.mod0, rank = T)
 summary(bm.mod)
 #In the wet treatment, seedlings in heterospecific soil grew larger than seedlings
 #in conspecific soil. 
-saveRDS(bm.mod, file = "02_models/modoutput/biomass.RDS")
+
+res <- residuals(bm.mod)
+res0 <- residuals(bm.mod0)
+plot(scale(perf_dat$Init_Height), res)
+plot(scale(log(perf_dat$Init_Height)), res0)
+plot(fitted(bm.mod), res)
+plot(fitted(bm.mod0), res0)
+
+#saveRDS(bm.mod, file = "02_models/modoutput/biomass.RDS")

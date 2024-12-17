@@ -4,6 +4,7 @@ library(tidyverse) #always tidyverse
 library(lubridate) #convert dates to readable form
 
 dat <- read.csv("Data/Chapter2_Data_Clean.csv")
+dat.ts <- read.csv("Data/Ch2.TimeSeries.Data .csv")
 
 #make the proper variables numeric
 
@@ -56,9 +57,6 @@ write.csv(mod_data, file = "Data/mod_data_allpots.csv")
 ###############################
 #### Time Series Data Prep ####
 ###############################
-
-dat.ts <- read.csv("Data/Ch2.TimeSeries.Data .csv")
-
 #Fix a misnamed value
 dat.ts[1696,1] <- "A"
 

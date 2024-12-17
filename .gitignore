@@ -11,3 +11,5 @@
 BootOutput/
 *.boot
 *.pptx
+01_DataPrep.R
+Data/

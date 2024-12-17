@@ -3,9 +3,9 @@ rm(list = ls())
 library(tidyverse) #always tidyverse
 library(lubridate) #convert dates to readable form
 
-dat <- read.csv("Data/Chapter2_Data_Clean.csv")
+dat <- read.csv("Data/Chapter2_Data_Clean.csv") #clean final data
 geochem <- read.csv("Data/soil_pca.csv") #best model fit
-dat.ts <- read.csv("Data/Ch2.TimeSeries.Data .csv")
+dat.ts <- read.csv("Data/Ch2.TimeSeries.Data .csv") #census series
 
 #make the proper variables numeric
 

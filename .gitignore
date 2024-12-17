@@ -8,7 +8,6 @@
 *.RDS
 *.pdf
 *.png
-BootOutput/
 *.boot
 *.pptx
 *.mod

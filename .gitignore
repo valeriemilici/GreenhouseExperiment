@@ -11,6 +11,7 @@
 BootOutput/
 *.boot
 *.pptx
+*.mod
 01_DataPrep.R
 Data/
-Models/outtakes/
+Old/

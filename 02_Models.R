@@ -1,9 +1,9 @@
 ### Species Specific Effects
 ### Initializing Workspace -----------------------------------------------------
 rm(list = ls())
-library(tidyverse) #always
-library(ggplot2) #for plotting
-library(patchwork) #joins plots nicely
+library(tidyverse) 
+library(ggplot2) 
+library(patchwork)
 library(ggeffects)
 library(stringr)
 library(brms)
@@ -25,7 +25,7 @@ dat2 <- mutate(dat, Tot_Biomass_0 = replace_na(Tot_Biomass, 0),
 psidfr_ht <- mean(dat2$Init_Height[dat2$Seedling == "PSIDFR"], na.rm=T)
 dat2 <- mutate(dat2, Init_Height = replace_na(Init_Height, psidfr_ht))
 #summary(dat2)
-write.csv(dat2, "Output/Models/dat2.csv") #save for plotting
+#write.csv(dat2, "Output/Models/dat2.csv") #save for plotting
 
 ### The Hurdle Model (Survival and Biomass effects combined) ----------
 
@@ -45,7 +45,10 @@ brms_bm.mod <- brm(bf(Tot_Biomass_0 ~ scale(duration) +
                    data = dat2, cores=4, 
                    family = hurdle_lognormal(link_hu="logit"),
                    control=list(adapt_delta = 0.99, max_treedepth = 12), 
-                   prior=prior_bm_mod)
+                   prior=prior_bm_mod,
+                   seed = 370256386)
+
+
 ## diagnostics
 pp_check(brms_bm.mod, ndraws=100) +
   pp_check(brms_bm.mod, resp = "mu", ndraws=100) +

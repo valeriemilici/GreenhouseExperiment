@@ -12,9 +12,14 @@ library(tidybayes)
 library(bayesplot)
 
 dat2 <- read.csv("Output/Models/dat2.csv")
-load("Output/Models/brms_bm.mod") # hurdle model
-load("Output/Models/brms_RMF.mod") # biomass allocation model
-load("Output/Models/brms_bm.mod_sp") # species-specific model
+load("Output/Models/brms_bm") # hurdle model
+load("Output/Models/brms_RMF") # biomass allocation model
+load("Output/Models/brms_bm_sp") # species-specific model
+
+#Make sure dat2 is formatted appropriately
+dat2 <- mutate(dat2, 
+               soil = relevel(factor(soil), "heterospecific"),
+               Cohort = factor(Cohort))
 
 ### Figure 2 ------------
 
@@ -108,7 +113,8 @@ Figure2 <- Figure2A / Figure2B +
 
 Figure2
 
-ggsave(plot = Figure2, filename = "Output/MSFigs/Fig2.png")
+ggsave(plot = Figure2, filename = "Output/MSFigs/Fig2.png",
+       height = 8, width = 6, units = "in")
 
 ### Figure 3 -----------
 ## Plot the hurdle model output
@@ -190,7 +196,8 @@ Figure3 <- (((pl_psf_pop[[1]] + labs(tag = "A", x= NULL)) |
 
 Figure3
 
-ggsave(plot = Figure3, filename = "Output/MSFigs/Fig3.png")
+ggsave(plot = Figure3, filename = "Output/MSFigs/Fig3.png",
+       width = 6, height = 5, units = "in" )
 ### Figure 4 -------
 pred_dat_RMF <- with(filter(dat2, status == 1),
                      expand_grid(Treatment = unique(Treatment),
